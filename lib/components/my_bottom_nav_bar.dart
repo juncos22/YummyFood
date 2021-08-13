@@ -3,6 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import 'package:recipe_app/constants.dart';
 import 'package:recipe_app/providers/nav_items.dart';
+import 'package:recipe_app/providers/theme_provider.dart';
 import 'package:recipe_app/size_config.dart';
 
 class MyBottomNavBar extends StatelessWidget {
@@ -17,7 +18,8 @@ class MyBottomNavBar extends StatelessWidget {
       builder: (context, navItems, child) => Container(
         padding: EdgeInsets.symmetric(horizontal: defaultSize * 3),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color:
+              !Provider.of<ThemeProvider>(context).isDark ? Colors.white : null,
           boxShadow: [
             BoxShadow(
               offset: Offset(0, -7),
@@ -36,13 +38,13 @@ class MyBottomNavBar extends StatelessWidget {
                 press: () {
                   navItems.changeNavIndex(index: index);
                   if (navItems.items[index].destinationChecker()) {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            navItems.items[index].destination!,
-                      ),
-                    );
+                    Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              navItems.items[index].destination!,
+                        ),
+                        (route) => false);
                   }
                 },
                 isActive: navItems.selectedIndex == index,

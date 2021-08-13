@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:recipe_app/constants.dart';
 import 'package:recipe_app/models/recipe.dart';
 import 'package:recipe_app/providers/recipe_provider.dart';
+import 'package:recipe_app/providers/theme_provider.dart';
 import 'package:recipe_app/size_config.dart';
 
 class RecipeForm extends StatefulWidget {
@@ -74,7 +75,9 @@ class _RecipeFormState extends State<RecipeForm> {
               child: Text(
                 'Select Recipe Photo',
                 style: TextStyle(
-                  color: kTextColor,
+                  color: !Provider.of<ThemeProvider>(context).isDark
+                      ? kTextColor
+                      : kPrimaryColor,
                 ),
               ),
             ),

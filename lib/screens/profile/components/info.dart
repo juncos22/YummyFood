@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:recipe_app/constants.dart';
+import 'package:recipe_app/providers/theme_provider.dart';
 import 'package:recipe_app/size_config.dart';
 
 class Info extends StatelessWidget {
@@ -46,7 +48,9 @@ class Info extends StatelessWidget {
                   name,
                   style: TextStyle(
                     fontSize: defaultSize * 2.2,
-                    color: kTextColor,
+                    color: Provider.of<ThemeProvider>(context).isDark
+                        ? kPrimaryColor
+                        : kTextColor,
                   ),
                 ),
                 SizedBox(

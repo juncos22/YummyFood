@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:provider/provider.dart';
 import 'package:recipe_app/constants.dart';
+import 'package:recipe_app/providers/theme_provider.dart';
 import 'package:recipe_app/size_config.dart';
 
 class ProfileMenuItem extends StatelessWidget {
@@ -38,7 +40,9 @@ class ProfileMenuItem extends StatelessWidget {
                 title,
                 style: TextStyle(
                   fontSize: defaultSize * 1.6,
-                  color: kTextColor,
+                  color: Provider.of<ThemeProvider>(context).isDark
+                      ? kPrimaryColor
+                      : kTextColor,
                 ),
               ),
               Spacer(),
