@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="dev.nicolas.recipe_app">
    <application
-        android:label="recipe_app"
+        android:label="YummyFood"
         android:icon="@mipmap/launcher_icon">
         <activity
             android:name=".MainActivity"

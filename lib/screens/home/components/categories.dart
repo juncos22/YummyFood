@@ -1,45 +1,36 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:recipe_app/constants.dart';
-import 'package:recipe_app/services/recipe_service.dart';
+import 'package:recipe_app/providers/recipe_provider.dart';
 import 'package:recipe_app/size_config.dart';
 
-class Categories extends StatefulWidget {
-  const Categories({Key? key}) : super(key: key);
-
-  @override
-  _CategoriesState createState() => _CategoriesState();
-}
-
-class _CategoriesState extends State<Categories> {
-  int selectedIndex = 0;
-
-  @override
-  void initState() {
-    super.initState();
-    RecipeService().listRecipeCategories();
-  }
-
+class Categories extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: SizeConfig.defaultSize * 2),
       child: SizedBox(
         height: SizeConfig.defaultSize * 3.5,
-        child: ListView.builder(
-          itemCount: RecipeService.categories.length,
-          scrollDirection: Axis.horizontal,
-          itemBuilder: (context, index) => buildCategoryItem(index),
+        child: Consumer<RecipeProvider>(
+          builder: (context, provider, child) {
+            return ListView.builder(
+              itemCount: provider.categoryList.length,
+              scrollDirection: Axis.horizontal,
+              itemBuilder: (context, index) =>
+                  buildCategoryItem(context, index),
+            );
+          },
         ),
       ),
     );
   }
 
-  Widget buildCategoryItem(int index) {
+  Widget buildCategoryItem(BuildContext context, int index) {
+    RecipeProvider provider = Provider.of<RecipeProvider>(context);
     return GestureDetector(
       onTap: () {
-        setState(() {
-          this.selectedIndex = index;
-        });
+        provider.setCategoryIndex(index);
+        provider.setCategorySearch(provider.categoryList[index]);
       },
       child: Container(
         alignment: Alignment.center,
@@ -47,8 +38,9 @@ class _CategoriesState extends State<Categories> {
           left: SizeConfig.defaultSize * 2,
         ),
         decoration: BoxDecoration(
-            color:
-                selectedIndex == index ? Color(0xFFEFF3EE) : Colors.transparent,
+            color: provider.categoryIndex == index
+                ? Color(0xFFEFF3EE)
+                : Colors.transparent,
             borderRadius: BorderRadius.circular(
               SizeConfig.defaultSize * 1.6,
             )),
@@ -58,10 +50,12 @@ class _CategoriesState extends State<Categories> {
             vertical: SizeConfig.defaultSize * 0.5,
           ),
           child: Text(
-            RecipeService.categories[index],
+            provider.categoryList[index],
             style: TextStyle(
               fontWeight: FontWeight.bold,
-              color: selectedIndex == index ? kPrimaryColor : Color(0xFFC2C2B5),
+              color: provider.categoryIndex == index
+                  ? kPrimaryColor
+                  : Color(0xFFC2C2B5),
             ),
           ),
         ),

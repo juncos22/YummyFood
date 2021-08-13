@@ -1,7 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:recipe_app/models/nav_item.dart';
 import 'package:recipe_app/providers/recipe_provider.dart';
 import 'package:recipe_app/screens/home/home_screen.dart';
 import 'package:recipe_app/services/recipe_service.dart';
@@ -22,10 +21,11 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider<NavItems>(create: (_) => NavItems()),
-        ChangeNotifierProvider<RecipeProvider>(create: (_) => RecipeProvider(RecipeService()))
+        ChangeNotifierProvider<RecipeProvider>(
+            create: (_) => RecipeProvider(RecipeService()))
       ],
       child: MaterialApp(
-        title: 'Recipe App',
+        title: 'YummyFood',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
           scaffoldBackgroundColor: Colors.white,

@@ -6,7 +6,6 @@ import 'package:provider/provider.dart';
 import 'package:recipe_app/constants.dart';
 import 'package:recipe_app/models/recipe.dart';
 import 'package:recipe_app/providers/recipe_provider.dart';
-import 'package:recipe_app/services/recipe_service.dart';
 import 'package:recipe_app/size_config.dart';
 
 class RecipeForm extends StatefulWidget {

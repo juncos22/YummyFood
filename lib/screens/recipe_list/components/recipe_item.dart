@@ -11,7 +11,7 @@ class RecipeItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListTile(
       leading: CircleAvatar(
-        child: Image.network(recipeAvatar, fit: BoxFit.cover,),
+        backgroundImage: NetworkImage(recipeAvatar),
       ),
       title: Text(recipeName),
     );

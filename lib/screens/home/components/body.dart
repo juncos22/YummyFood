@@ -1,10 +1,10 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:recipe_app/constants.dart';
 import 'package:recipe_app/models/recipe.dart';
+import 'package:recipe_app/providers/recipe_provider.dart';
 import 'package:recipe_app/screens/home/components/categories.dart';
 import 'package:recipe_app/screens/home/components/recip_bundle_card.dart';
-import 'package:recipe_app/services/recipe_service.dart';
 import 'package:recipe_app/size_config.dart';
 
 class Body extends StatelessWidget {
@@ -20,39 +20,35 @@ class Body extends StatelessWidget {
             child: Padding(
               padding:
                   EdgeInsets.symmetric(horizontal: SizeConfig.defaultSize * 2),
-              child: StreamBuilder<List<QueryDocumentSnapshot<Recipe>>>(
-                stream: RecipeService().showRecipes(),
-                builder: (context, snapshot) {
-                  if (snapshot.hasData) {
-                    List<Recipe> recipeList = [];
-                    var data = snapshot.data!;
-                    data.forEach((element) {
-                      var recipe = element.data();
-                      recipeList.add(recipe);
-                    });
-                    return GridView.builder(
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount:
-                              (SizeConfig.orientation == Orientation.landscape)
-                                  ? 2
-                                  : 1),
-                      itemCount: recipeList.length,
-                      shrinkWrap: true,
-                      padding: EdgeInsets.all(10.0),
-                      itemBuilder: (context, index) {
-                        return RecipeBundleCard(recipe: recipeList[index]);
-                      },
+              child: FutureBuilder<List<Recipe>>(
+                  future: Provider.of<RecipeProvider>(context).showRecipes(),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData) {
+                      return GridView.builder(
+                          gridDelegate:
+                              SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: (SizeConfig.orientation ==
+                                          Orientation.landscape)
+                                      ? 2
+                                      : 1),
+                          itemCount: Provider.of<RecipeProvider>(context)
+                              .recipeList
+                              .length,
+                          shrinkWrap: true,
+                          padding: EdgeInsets.all(10.0),
+                          itemBuilder: (context, index) {
+                            return RecipeBundleCard(
+                                recipe: Provider.of<RecipeProvider>(context)
+                                    .recipeList[index]);
+                          });
+                    }
+
+                    return Center(
+                      child: CircularProgressIndicator(
+                        color: kPrimaryColor,
+                      ),
                     );
-                  } else if (snapshot.hasError) {
-                    return Text(snapshot.error.toString());
-                  }
-                  return Center(
-                    child: CircularProgressIndicator(
-                      color: kPrimaryColor,
-                    ),
-                  );
-                },
-              ),
+                  }),
             ),
           )
         ],

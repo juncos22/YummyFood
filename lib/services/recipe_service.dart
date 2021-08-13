@@ -8,7 +8,6 @@ import 'package:recipe_app/models/recipe.dart';
 class RecipeService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseStorage _storage = FirebaseStorage.instance;
-  static final List<String> categories = [];
 
   Future<String> saveRecipePhoto(XFile recipeFile) async {
     var uploadTask = await _storage
@@ -33,19 +32,17 @@ class RecipeService {
     }, SetOptions(merge: true));
   }
 
-  Stream<List<QueryDocumentSnapshot<Recipe>>> showRecipes() {
+  Future<QuerySnapshot<Recipe>> showRecipes() {
     return _firestore
         .collection('recipes')
         .withConverter<Recipe>(
           fromFirestore: (snapshot, _) => Recipe.fromJson(snapshot.data()!),
           toFirestore: (recipe, _) => recipe.toJson(),
         )
-        .snapshots()
-        .asyncMap((snapshot) => snapshot.docs);
+        .get();
   }
 
-  // TODO: Encontrar la forma de filtrar por categoria en la UI
-  Stream<List<QueryDocumentSnapshot<Recipe>>> filterRecipes(String category) {
+  Future<QuerySnapshot<Recipe>> filterRecipes(String category) {
     return _firestore
         .collection('recipes')
         .withConverter<Recipe>(
@@ -53,16 +50,6 @@ class RecipeService {
           toFirestore: (recipe, _) => recipe.toJson(),
         )
         .where('category', isEqualTo: category)
-        .snapshots()
-        .asyncMap((snapshot) => snapshot.docs);
-  }
-
-  void listRecipeCategories() {
-    this.showRecipes().forEach((element) {
-      element.forEach((element) {
-        var recipe = element.data();
-        categories.add(recipe.category!);
-      });
-    });
+        .get();
   }
 }
