@@ -7,6 +7,8 @@ import 'package:recipe_app/constants.dart';
 import 'package:recipe_app/models/recipe.dart';
 import 'package:recipe_app/providers/recipe_provider.dart';
 import 'package:recipe_app/providers/theme_provider.dart';
+import 'package:recipe_app/screens/new_recipe/components/custom_dropdown.dart';
+import 'package:recipe_app/screens/new_recipe/components/custom_textfield.dart';
 import 'package:recipe_app/size_config.dart';
 
 class RecipeForm extends StatefulWidget {
@@ -19,34 +21,70 @@ class RecipeForm extends StatefulWidget {
 }
 
 class _RecipeFormState extends State<RecipeForm> {
-  TextEditingController _recipeNameController = TextEditingController();
-  TextEditingController _recipeCategoryController = TextEditingController();
-  TextEditingController _recipeIngredientsController = TextEditingController();
+  TextEditingController _nameController = TextEditingController();
+  TextEditingController _ingredientsController = TextEditingController();
+  TextEditingController _preparationController = TextEditingController();
+
+  String selectedType = "Desayuno";
+  String selectedCategory = "Aperitivo";
   XFile? _recipePhoto;
-  late bool isRecipeNameValid;
-  late bool isRecipeCategoryValid;
-  late bool isRecipeIngredientsValid;
-  String? recipeNameErrorText;
-  String? recipeCategoryErrorText;
-  String? recipeIngredientsErrorText;
+  late bool isNameValid;
+  late bool isIngredientsValid;
+  late bool isPreparationValid;
+  String? nameErrorText;
+  String? ingredientsErrorText;
+  String? preparationErrorText;
 
   @override
   void initState() {
     super.initState();
-    this.isRecipeNameValid = false;
-    this.isRecipeCategoryValid = false;
-    this.isRecipeIngredientsValid = false;
+    this.isNameValid = false;
+    this.isIngredientsValid = false;
+    this.isPreparationValid = false;
+  }
+
+  void _selectOption() async {
+    await showDialog<AlertDialog>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Select option'),
+          actions: [
+            IconButton(
+              onPressed: () {
+                this._selectImage();
+                Navigator.pop(context);
+              },
+              icon: Icon(Icons.image_rounded),
+            ),
+            IconButton(
+              onPressed: () {
+                this._takePhoto();
+                Navigator.pop(context);
+              },
+              icon: Icon(Icons.camera_alt_rounded),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   void _selectImage() async {
-    await ImagePicker().pickImage(source: ImageSource.gallery).then((file) {
-      _recipePhoto = file;
-    });
+    this._recipePhoto =
+        await ImagePicker().pickImage(source: ImageSource.gallery);
+    setState(() {});
+  }
+
+  void _takePhoto() async {
+    this._recipePhoto =
+        await ImagePicker().pickImage(source: ImageSource.camera);
     setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
     return Container(
       alignment: Alignment.center,
       child: SingleChildScrollView(
@@ -54,24 +92,22 @@ class _RecipeFormState extends State<RecipeForm> {
         child: Column(
           children: [
             Container(
-              width: SizeConfig.defaultSize * 10,
-              height: SizeConfig.defaultSize * 10,
+              width: size.width - 5,
+              height: size.height / 5,
               margin: EdgeInsets.only(bottom: 2.0),
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(50.0),
-                border: Border.all(
-                  color: kPrimaryColor,
-                  width: 1.5,
-                ),
                 image: DecorationImage(
+                  fit: BoxFit.cover,
                   image: (this._recipePhoto != null)
-                      ? Image.file(File(this._recipePhoto!.path)).image
-                      : AssetImage('assets/images/app_icon.png'),
+                      ? Image.file(
+                          File(this._recipePhoto!.path),
+                        ).image
+                      : AssetImage('assets/images/placeholder.jpg'),
                 ),
               ),
             ),
             TextButton(
-              onPressed: _selectImage,
+              onPressed: this._selectOption,
               child: Text(
                 'Select Recipe Photo',
                 style: TextStyle(
@@ -81,90 +117,77 @@ class _RecipeFormState extends State<RecipeForm> {
                 ),
               ),
             ),
-            TextField(
-              controller: this._recipeNameController,
-              onChanged: _validateRecipeNameField,
-              decoration: InputDecoration(
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(15.0),
-                  borderSide: BorderSide(color: kPrimaryColor, width: 2.0),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(15.0),
-                  borderSide: BorderSide(color: kPrimaryColor, width: 2.0),
-                ),
-                labelText: 'Recipe Name',
-                labelStyle: TextStyle(color: kPrimaryColor),
-                focusedErrorBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(15.0),
-                  borderSide: BorderSide(color: kErrorColor, width: 2.0),
-                ),
-                errorStyle: TextStyle(color: kErrorColor),
-                errorText: this.recipeNameErrorText,
-                errorBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(15.0),
-                  borderSide: BorderSide(color: kErrorColor, width: 2.0),
-                ),
-              ),
+            SizedBox(
+              height: 15.0,
+            ),
+            CustomTextField(
+              controller: this._nameController,
+              errorText: this.nameErrorText,
+              inputType: TextInputType.name,
+              isMultiline: false,
+              labelText: "Recipe Name",
+              validatorFunction: this._validateNameField,
             ),
             SizedBox(
               height: 15.0,
             ),
-            TextField(
-              controller: this._recipeCategoryController,
-              onChanged: _validateRecipeCategoryField,
-              decoration: InputDecoration(
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(15.0),
-                  borderSide: BorderSide(color: kPrimaryColor, width: 2.0),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(15.0),
-                  borderSide: BorderSide(color: kPrimaryColor, width: 2.0),
-                ),
-                labelText: 'Recipe Category',
-                labelStyle: TextStyle(color: kPrimaryColor),
-                errorText: this.recipeCategoryErrorText,
-                errorStyle: TextStyle(color: kErrorColor),
-                errorBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(15.0),
-                  borderSide: BorderSide(color: kErrorColor, width: 2.0),
-                ),
-                focusedErrorBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(15.0),
-                  borderSide: BorderSide(color: kErrorColor, width: 2.0),
-                ),
-              ),
+            CustomDropdown(
+              items: [
+                "Desayuno",
+                "Almuerzo",
+                "Merienda",
+                "Cena",
+                "Bebida",
+                "Snack",
+                "Vegana"
+              ],
+              hintText: "Recipe Type",
+              selectedItem: this.selectedType,
+              onChanged: (value) {
+                setState(() {
+                  this.selectedType = value!;
+                });
+              },
             ),
             SizedBox(
               height: 15.0,
             ),
-            TextField(
-              controller: this._recipeIngredientsController,
-              onChanged: _validateRecipeIngredientsField,
-              decoration: InputDecoration(
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(15.0),
-                  borderSide: BorderSide(color: kPrimaryColor, width: 2.0),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(15.0),
-                  borderSide: BorderSide(color: kPrimaryColor, width: 2.0),
-                ),
-                labelText: 'Recipe Ingredients',
-                labelStyle: TextStyle(color: kPrimaryColor),
-                errorText: this.recipeIngredientsErrorText,
-                errorStyle: TextStyle(color: kErrorColor),
-                errorBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(15.0),
-                  borderSide: BorderSide(color: kErrorColor, width: 2.0),
-                ),
-                focusedErrorBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(15.0),
-                  borderSide: BorderSide(color: kErrorColor, width: 2.0),
-                ),
-              ),
-              maxLines: 5,
+            CustomDropdown(
+              items: [
+                "Aperitivo",
+                "Entrada",
+                "Plato Principal",
+                "Postre",
+              ],
+              hintText: "Recipe Category",
+              selectedItem: this.selectedCategory,
+              onChanged: (value) {
+                setState(() {
+                  this.selectedCategory = value!;
+                });
+              },
+            ),
+            SizedBox(
+              height: 15.0,
+            ),
+            CustomTextField(
+              controller: this._ingredientsController,
+              errorText: this.ingredientsErrorText,
+              inputType: TextInputType.multiline,
+              isMultiline: true,
+              labelText: "Recipe Ingredients",
+              validatorFunction: this._validateIngredientsField,
+            ),
+            SizedBox(
+              height: 15.0,
+            ),
+            CustomTextField(
+              controller: this._preparationController,
+              errorText: this.preparationErrorText,
+              inputType: TextInputType.multiline,
+              isMultiline: true,
+              labelText: "Recipe Preparation",
+              validatorFunction: this._validatePreparationField,
             ),
             SizedBox(
               height: 15.0,
@@ -196,9 +219,10 @@ class _RecipeFormState extends State<RecipeForm> {
                 color: kPrimaryColor,
               ),
               child: TextButton(
-                onPressed: (this.isRecipeNameValid &&
-                        this.isRecipeCategoryValid &&
-                        this.isRecipeIngredientsValid)
+                onPressed: (this.isNameValid &&
+                        this.isIngredientsValid &&
+                        this.isPreparationValid &&
+                        this._recipePhoto != null)
                     ? _saveRecipe
                     : null,
                 child: Text(
@@ -213,48 +237,46 @@ class _RecipeFormState extends State<RecipeForm> {
     );
   }
 
-  void _validateRecipeNameField(String value) {
+  void _validateNameField(String value) {
     setState(() {
-      this.isRecipeNameValid = value.isNotEmpty;
+      this.isNameValid = value.isNotEmpty;
     });
-    if (!this.isRecipeNameValid) {
-      this.recipeNameErrorText = 'Complete the recipe name';
+    if (!this.isNameValid) {
+      this.nameErrorText = 'The recipe name is needed';
     } else {
-      this.recipeNameErrorText = null;
+      this.nameErrorText = null;
     }
   }
 
-  void _validateRecipeCategoryField(String value) {
+  void _validatePreparationField(String value) {
     setState(() {
-      this.isRecipeCategoryValid = value.isNotEmpty;
+      this.isPreparationValid = value.isNotEmpty;
     });
-    if (!this.isRecipeCategoryValid) {
-      this.recipeCategoryErrorText = 'Complete the recipe category';
+    if (!this.isPreparationValid) {
+      this.preparationErrorText = 'The preparation is nedded';
     } else {
-      this.recipeCategoryErrorText = null;
+      this.preparationErrorText = null;
     }
   }
 
-  void _validateRecipeIngredientsField(String value) {
+  void _validateIngredientsField(String value) {
     setState(() {
-      this.isRecipeIngredientsValid = value.isNotEmpty;
+      this.isIngredientsValid = value.isNotEmpty;
     });
-    if (!this.isRecipeIngredientsValid) {
-      this.recipeIngredientsErrorText = 'Complete the recipe ingredients';
+    if (!this.isIngredientsValid) {
+      this.ingredientsErrorText = 'The ingredients are needed';
     } else {
-      this.recipeIngredientsErrorText = null;
+      this.ingredientsErrorText = null;
     }
   }
 
   void _saveRecipe() async {
-    if (this._recipePhoto == null) {
-      this._recipePhoto = new XFile('assets/images/app_icon.png');
-    }
-
     var recipe = Recipe();
-    recipe.name = this._recipeNameController.value.text;
-    recipe.category = this._recipeCategoryController.value.text;
-    recipe.ingredients = this._recipeIngredientsController.value.text;
+    recipe.name = this._nameController.text;
+    recipe.type = this.selectedType;
+    recipe.category = this.selectedCategory;
+    recipe.ingredients = this._ingredientsController.text;
+    recipe.preparation = this._preparationController.text;
     recipe.photo = await Provider.of<RecipeProvider>(context, listen: false)
         .saveRecipePhoto(this._recipePhoto!);
 

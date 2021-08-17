@@ -12,6 +12,7 @@ class NavItems extends ChangeNotifier {
 
   List<NavItem> items = [
     NavItem(id: 1, icon: 'assets/icons/home.svg', destination: HomeScreen()),
-    NavItem(id: 2, icon: 'assets/icons/user.svg', destination: ProfileScreen()),
+    NavItem(id: 2, icon: 'assets/icons/heart.svg', destination: null),
+    NavItem(id: 3, icon: 'assets/icons/user.svg', destination: ProfileScreen()),
   ];
 }
