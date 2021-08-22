@@ -26,7 +26,7 @@ class HomeScreen extends StatelessWidget {
           );
         },
         elevation: 2.0,
-        backgroundColor: kAccentColor,
+        backgroundColor: kPrimaryLightColor,
         child: Icon(Icons.add),
       ),
       bottomNavigationBar: MyBottomNavBar(),

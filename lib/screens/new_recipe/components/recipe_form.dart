@@ -3,13 +3,14 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import 'package:recipe_app/components/custom_dropdown.dart';
+import 'package:recipe_app/components/custom_textfield.dart';
 import 'package:recipe_app/constants.dart';
 import 'package:recipe_app/models/recipe.dart';
 import 'package:recipe_app/providers/recipe_provider.dart';
 import 'package:recipe_app/providers/theme_provider.dart';
-import 'package:recipe_app/screens/new_recipe/components/custom_dropdown.dart';
-import 'package:recipe_app/screens/new_recipe/components/custom_textfield.dart';
 import 'package:recipe_app/size_config.dart';
+import 'package:recipe_app/utils/recipe_utils.dart';
 
 class RecipeForm extends StatefulWidget {
   RecipeForm({
@@ -25,8 +26,8 @@ class _RecipeFormState extends State<RecipeForm> {
   TextEditingController _ingredientsController = TextEditingController();
   TextEditingController _preparationController = TextEditingController();
 
-  String selectedType = "Desayuno";
-  String selectedCategory = "Aperitivo";
+  String selectedType = recipeTypes[0];
+  String selectedCategory = recipeCategories[0];
   XFile? _recipePhoto;
   late bool isNameValid;
   late bool isIngredientsValid;
@@ -132,15 +133,7 @@ class _RecipeFormState extends State<RecipeForm> {
               height: 15.0,
             ),
             CustomDropdown(
-              items: [
-                "Desayuno",
-                "Almuerzo",
-                "Merienda",
-                "Cena",
-                "Bebida",
-                "Snack",
-                "Vegana"
-              ],
+              items: recipeTypes,
               hintText: "Recipe Type",
               selectedItem: this.selectedType,
               onChanged: (value) {
@@ -153,12 +146,7 @@ class _RecipeFormState extends State<RecipeForm> {
               height: 15.0,
             ),
             CustomDropdown(
-              items: [
-                "Aperitivo",
-                "Entrada",
-                "Plato Principal",
-                "Postre",
-              ],
+              items: recipeCategories,
               hintText: "Recipe Category",
               selectedItem: this.selectedCategory,
               onChanged: (value) {

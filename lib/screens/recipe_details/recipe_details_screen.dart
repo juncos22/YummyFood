@@ -20,11 +20,14 @@ class RecipeDetailsScreen extends StatelessWidget {
               Image(
                 image: NetworkImage(this.recipeItem.photo!),
                 fit: BoxFit.cover,
+                height: 300.0,
               ),
               SizedBox(
                 height: defaultSize * 0.9,
               ),
-              RecipeInfo(recipeItem: this.recipeItem,)
+              RecipeInfo(
+                recipeItem: this.recipeItem,
+              )
             ],
           ),
         ),
@@ -32,5 +35,3 @@ class RecipeDetailsScreen extends StatelessWidget {
     );
   }
 }
-
-

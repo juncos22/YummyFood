@@ -6,6 +6,7 @@ class Recipe {
   String? ingredients;
   String? preparation;
   String? photo;
+  bool isFavorite;
 
   Recipe(
       {this.id,
@@ -14,16 +15,18 @@ class Recipe {
       this.category,
       this.ingredients,
       this.preparation,
-      this.photo});
+      this.photo,
+      this.isFavorite = false});
 
   Recipe.fromJson(Map<String, dynamic> json)
       : this(
             id: json['id']! as String,
             name: json['name']! as String,
-            // type: json['type'] as String,
+            type: json['type'] as String,
             category: json['category']! as String,
             ingredients: json['ingredients']! as String,
-            // preparation: json['preparation']! as String,
+            preparation: json['preparation']! as String,
+            isFavorite: json['isFavorite'] as bool,
             photo: json['photo']! as String);
 
   Map<String, Object?> toJson() {
@@ -34,6 +37,7 @@ class Recipe {
       'category': this.category,
       'ingredients': this.ingredients,
       'preparation': this.preparation,
+      'isFavorite': this.isFavorite,
       'photo': this.photo
     };
   }

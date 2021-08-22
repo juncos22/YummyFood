@@ -17,39 +17,42 @@ class Body extends StatelessWidget {
         children: [
           Categories(),
           Expanded(
-            child: Padding(
-              padding:
-                  EdgeInsets.symmetric(horizontal: SizeConfig.defaultSize * 2),
-              child: FutureBuilder<List<Recipe>>(
-                  future: Provider.of<RecipeProvider>(context).showRecipes(),
-                  builder: (context, snapshot) {
-                    if (snapshot.hasData) {
-                      return GridView.builder(
-                          gridDelegate:
-                              SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: (SizeConfig.orientation ==
-                                          Orientation.landscape)
-                                      ? 2
-                                      : 1),
-                          itemCount: Provider.of<RecipeProvider>(context)
-                              .recipeList
-                              .length,
-                          shrinkWrap: true,
-                          padding: EdgeInsets.all(10.0),
-                          itemBuilder: (context, index) {
-                            return RecipeBundleCard(
-                                recipe: Provider.of<RecipeProvider>(context)
-                                    .recipeList[index]);
-                          });
-                    }
-
+            child: FutureBuilder<List<Recipe>>(
+                future: Provider.of<RecipeProvider>(context).showRecipes(),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    return GridView.builder(
+                        shrinkWrap: true,
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount:
+                              (SizeConfig.orientation == Orientation.landscape)
+                                  ? 2
+                                  : 1,
+                        ),
+                        itemCount: Provider.of<RecipeProvider>(context)
+                            .recipeList
+                            .length,
+                        itemBuilder: (context, index) {
+                          return RecipeBundleCard(
+                              recipe: Provider.of<RecipeProvider>(context)
+                                  .recipeList[index]);
+                        });
+                  }
+                  if (snapshot.hasError) {
                     return Center(
-                      child: CircularProgressIndicator(
-                        color: kPrimaryColor,
+                      child: Text(
+                        snapshot.error.toString(),
+                        style: TextStyle(color: kErrorColor),
                       ),
                     );
-                  }),
-            ),
+                  }
+
+                  return Center(
+                    child: CircularProgressIndicator(
+                      color: kPrimaryColor,
+                    ),
+                  );
+                }),
           )
         ],
       ),

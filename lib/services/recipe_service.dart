@@ -26,8 +26,11 @@ class RecipeService {
     return await recipesRef.doc(recipeId).set({
       'id': recipeId,
       'name': recipe.name,
+      'type': recipe.type,
       'category': recipe.category,
       'ingredients': recipe.ingredients,
+      'preparation': recipe.preparation,
+      'isFavorite': recipe.isFavorite,
       'photo': recipe.photo
     }, SetOptions(merge: true));
   }
@@ -51,5 +54,22 @@ class RecipeService {
         )
         .where('category', isEqualTo: category)
         .get();
+  }
+
+  Future<QuerySnapshot<Recipe>> filterFavs() async {
+    return _firestore
+        .collection('recipes')
+        .withConverter<Recipe>(
+            fromFirestore: (snapshot, _) => Recipe.fromJson(snapshot.data()!),
+            toFirestore: (recipe, _) => recipe.toJson())
+        .where('isFavorite', isEqualTo: true)
+        .get();
+  }
+
+  Future<void> setFav(Recipe recipe) async {
+    await _firestore
+        .collection('recipes')
+        .doc(recipe.id)
+        .set({'isFavorite': recipe.isFavorite}, SetOptions(merge: true));
   }
 }

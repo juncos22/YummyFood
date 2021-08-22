@@ -30,6 +30,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       backgroundColor: kPrimaryColor,
       centerTitle: true,
       title: Text('Profile'),
+      elevation: 0,
       actions: [
         TextButton(
           onPressed: () {},

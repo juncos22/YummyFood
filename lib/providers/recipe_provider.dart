@@ -8,6 +8,7 @@ enum RecipeState { INITIAL_STATE, LOADING_STATE, SUCCESS_STATE, FAILURE_STATE }
 class RecipeProvider extends ChangeNotifier {
   final RecipeService _recipeService;
   List<Recipe> recipeList = [];
+  List<Recipe> favoriteList = [];
   final List<String> categoryList = ["All"];
   String _categorySearch = "";
   int categoryIndex = 0;
@@ -28,13 +29,15 @@ class RecipeProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  // TODO: Eliminar las categorias que no aplican a ninguna receta actualmente
   void setCategoryList() {
-    if (this.recipeList.isNotEmpty && this.categoryList.length == 1) {
-      this.recipeList.forEach((recipe) {
+    // this.categoryList.removeRange(1, this.categoryList.length);
+    this.recipeList.forEach((recipe) {
+      if (!this.categoryList.contains(recipe.category)) {
         this.categoryList.add(recipe.category!);
-      });
-      notifyListeners();
-    }
+      }
+    });
+    notifyListeners();
   }
 
   Future<String> saveRecipePhoto(XFile recipeFile) async {
@@ -48,19 +51,16 @@ class RecipeProvider extends ChangeNotifier {
       await this._recipeService.saveRecipe(recipe);
       this.recipeState = RecipeState.SUCCESS_STATE;
       notifyListeners();
-      Future.delayed(Duration(milliseconds: 1500), () {
-        this.recipeState = RecipeState.INITIAL_STATE;
-        notifyListeners();
-      });
     } on Exception catch (e) {
       print(e.toString());
       this.recipeState = RecipeState.FAILURE_STATE;
       notifyListeners();
-      Future.delayed(Duration(milliseconds: 1500), () {
-        this.recipeState = RecipeState.INITIAL_STATE;
-        notifyListeners();
-      });
     }
+
+    Future.delayed(Duration(milliseconds: 1500), () {
+      this.recipeState = RecipeState.INITIAL_STATE;
+      notifyListeners();
+    });
   }
 
   Future<List<Recipe>> showRecipes() async {
@@ -83,5 +83,43 @@ class RecipeProvider extends ChangeNotifier {
       print(e.toString());
     }
     return this.recipeList;
+  }
+
+  Future<void> setFavorite(Recipe recipe) async {
+    try {
+      await this._recipeService.setFav(recipe);
+
+      this.recipeState = RecipeState.SUCCESS_STATE;
+      notifyListeners();
+    } on Exception catch (e) {
+      print(e.toString());
+      this.recipeState = RecipeState.FAILURE_STATE;
+      notifyListeners();
+    }
+    Future.delayed(Duration(milliseconds: 1500), () {
+      this.recipeState = RecipeState.INITIAL_STATE;
+      notifyListeners();
+    });
+  }
+
+  Future<List<Recipe>> getFavorites() async {
+    try {
+      var recipeSnapshots = await this._recipeService.filterFavs();
+
+      List<Recipe> tempList = [];
+      recipeSnapshots.docs.forEach((element) {
+        var recipe = element.data();
+        tempList.add(recipe);
+      });
+
+      this.favoriteList = tempList;
+      notifyListeners();
+    } on Exception catch (e) {
+      print(e.toString());
+
+      this.recipeState = RecipeState.FAILURE_STATE;
+      notifyListeners();
+    }
+    return this.favoriteList;
   }
 }
